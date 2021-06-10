@@ -11,4 +11,6 @@ import com.bupt.cad.datadic.model.po.SecondCategory;
  * @Description:
  */
 public interface SecondCategoryMapper extends BaseMapper<SecondCategory> {
+
+
 }

@@ -20,11 +20,11 @@ public class Column implements Serializable {
 
     private String name;
 
-    private String type;
-
     private Integer secondCategoryId;
 
-    private String sources;
+    private String realName;
+
+    private String portAndAPI;
 
     private String description;
 
