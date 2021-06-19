@@ -28,4 +28,10 @@ class DatadicApplicationTests {
 
     }
 
+    @Test
+    public void show() {
+        String Path = System.getProperty("user.dir");
+        System.out.println(Path+"\\src\\main\\java");
+    }
+
 }
