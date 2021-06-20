@@ -6,8 +6,10 @@ import com.bupt.cad.datadic.dao.FirstCategoryMapper;
 import com.bupt.cad.datadic.dao.SecondCategoryMapper;
 import com.bupt.cad.datadic.http.APIUrl;
 import com.bupt.cad.datadic.http.HttpUtil;
+import com.bupt.cad.datadic.model.po.Column;
 import com.bupt.cad.datadic.model.po.DataAPI;
 import com.bupt.cad.datadic.model.po.SecondCategory;
+import com.bupt.cad.datadic.model.vo.ColumnVO;
 import com.bupt.cad.datadic.model.vo.FirstCategoryVO;
 import com.bupt.cad.datadic.model.vo.SecondCategoryVO;
 import com.bupt.cad.datadic.service.DataViewService;
@@ -96,7 +98,7 @@ public class DataViewServiceImpl implements DataViewService {
         return resultMap;
     }
     public Map<String,String> getDataByfirstCategory(String keyword,Integer id) throws IOException {
-        Map<String,String> resultMap = new HashMap<>();
+        Map<String,String> resultMap;
         Map<String,Object> columnMap = new HashMap<>();
         columnMap.put("first_category_id",id);
         List<SecondCategory> secondCategoryList = secondCategoryMapper.selectByMap(columnMap);
@@ -118,11 +120,43 @@ public class DataViewServiceImpl implements DataViewService {
     @Override
     public List<FirstCategoryVO> getFirstCategory() {
         List<FirstCategoryVO> firstCategoryVOS = firstCategoryMapper.selectAll();
-        return null;
+        return firstCategoryVOS;
     }
 
     @Override
     public List<SecondCategoryVO> getSecondCategory(Integer id) {
-        return null;
+        List<SecondCategoryVO> secondCategoryVOS = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
+        map.put("first_category_id",id);
+        List<SecondCategory> secondCategoryList = secondCategoryMapper.selectByMap(map);
+        for(SecondCategory secondCategory : secondCategoryList){
+            SecondCategoryVO  secondCategoryVO = new SecondCategoryVO();
+            secondCategoryVO.setId(secondCategory.getId());
+            secondCategoryVO.setName(secondCategory.getName());
+            secondCategoryVO.setDescription(secondCategory.getDescription());
+            secondCategoryVOS.add(secondCategoryVO);
+        }
+        return secondCategoryVOS;
+    }
+
+    @Override
+    public Map<String, String> searchDataById(List<Integer> ids) throws IOException {
+        Map<String,String> result = new HashMap<>();
+        List<Column> columnList = columnMapper.selectBatchIds(ids);
+        for(Column column : columnList){
+            String columnData = result.getOrDefault(column.getName(),new String());
+            for(String Api : column.getPortAndAPI().split(",")){
+                APIUrl apiUrl = new APIUrl(Api);
+                HttpRequest request = HttpUtil.HTTP_REQUEST_FACTORY.buildGetRequest(apiUrl);
+                HttpHeaders headers = request.getHeaders();
+                headers.setAuthorization("token");
+                HttpResponse httpResponse = request.execute();
+                String content = httpResponse.parseAsString();
+                columnData += content;
+            }
+            result.put(column.getName(),columnData);
+
+        }
+        return result;
     }
 }

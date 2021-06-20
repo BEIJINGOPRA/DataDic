@@ -1,7 +1,10 @@
 package com.bupt.cad.datadic.controller;
 
 import com.bupt.cad.datadic.common.ReturnResult;
+import com.bupt.cad.datadic.model.po.DataAPI;
 import com.bupt.cad.datadic.model.vo.ColumnWithDataVO;
+import com.bupt.cad.datadic.model.vo.FirstCategoryVO;
+import com.bupt.cad.datadic.model.vo.SecondCategoryVO;
 import com.bupt.cad.datadic.service.DataViewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -34,15 +37,34 @@ public class DataViewController {
         return new ReturnResult(200,"查询成功",resultMap);
     }
 
-    @GetMapping("search/firstgory")
+    @GetMapping("/search/firstgory")
+    //查询所有的类别
     public ReturnResult getFirstCategory(){
-        return new ReturnResult();
+        List<FirstCategoryVO> firstCategoryVOS = dataViewService.getFirstCategory();
+        return new ReturnResult(200,firstCategoryVOS);
     }
 
-    @GetMapping("search/secondgory/{id}")
+    @GetMapping("/search/secondgory/{id}")
+    //获得某个类别下的所有类别
     public ReturnResult getSecondCategory(@PathVariable Integer id){
-        return new ReturnResult();
+        List<SecondCategoryVO> secondCategoryVOS = dataViewService.getSecondCategory(id);
+        return new ReturnResult(200,secondCategoryVOS);
 
+    }
+
+    @GetMapping("/search/api")
+    //获得API信息,id为第二类别
+    public ReturnResult getAPI(@RequestParam Integer id){
+        List<DataAPI> dataAPIList = dataViewService.getDataApiByCategory(id);
+        return new ReturnResult(200,dataAPIList);
+    }
+
+    @GetMapping("/search/column")
+    //打勾选择字段
+    public  ReturnResult getColumnData(@RequestParam List<Integer> columnIds) throws IOException {
+        Map<String,String> resultMap = dataViewService.searchDataById(columnIds);
+
+        return new ReturnResult(200,resultMap);
     }
 
 
